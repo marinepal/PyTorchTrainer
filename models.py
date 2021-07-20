@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from torchvision.models import vgg11
+from torchvision.models import vgg19
 
 
 
@@ -71,5 +71,5 @@ MODELS = {
     'model_1': Model1(),
     'model_2': Model2(),
     'model_3': Model3(),
-    'vgg_11':  vgg11(pretrained=True)
+    'vgg_11':  vgg19(pretrained=True)
 }
