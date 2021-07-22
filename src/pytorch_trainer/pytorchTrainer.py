@@ -12,6 +12,7 @@ from matplotlib import pyplot as plt
 from sklearn.metrics import precision_score, accuracy_score, f1_score, balanced_accuracy_score, recall_score
 from torch.utils.data.sampler import SubsetRandomSampler
 from torchvision import datasets
+
 from models import MODELS
 
 logging.basicConfig(level=logging.INFO, handlers=[logging.FileHandler("message.log", 'w')])
@@ -69,23 +70,21 @@ class CifarPytorchTrainer:
         self.model.eval()
 
     def load_dataset(self):
-        transform = transforms.Compose([
+        self.transform = transforms.Compose([
             transforms.ToTensor(),
             transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5))
         ])
         train_data = datasets.CIFAR10('data', train=True,
-                                      download=True, transform=transform)
+                                      download=True, transform=self.transform)
         test_data = datasets.CIFAR10('data', train=False,
-                                     download=True, transform=transform)
+                                     download=True, transform=self.transform)
 
-        # obtain training indices that will be used for validation
         train_len = len(train_data)
         indices = list(range(train_len))
         np.random.shuffle(indices)
         split = int(np.floor(self.VALID_SIZE * train_len))
         train_idx, valid_idx = indices[split:], indices[:split]
 
-        # define samplers for obtaining training and validation batches
         train_sampler = SubsetRandomSampler(train_idx)
         valid_sampler = SubsetRandomSampler(valid_idx)
 
@@ -101,16 +100,11 @@ class CifarPytorchTrainer:
         valid_loss_min = np.Inf  # track change in validation loss
         for epoch in range(1, self.epochs + 1):
 
-            # keep track of training and validation loss
             train_loss = 0.0
             valid_loss = 0.0
 
-            ###################
-            # train the model #
-            ###################
             self.model.train()
             for data, target in self.train_dl:
-                # move tensors to GPU if CUDA is available
                 if self.train_on_gpu:
                     data, target = data.cuda(), target.cuda()
                 # clear the gradients of all optimized variables
@@ -126,9 +120,7 @@ class CifarPytorchTrainer:
                 # update training loss
                 train_loss += loss.item() * data.size(0)
 
-            ######################
-            # validate the model #
-            ######################
+            # Validation
             self.model.eval()
             for data, target in self.valid_dl:
                 # move tensors to GPU if CUDA is available
@@ -145,11 +137,9 @@ class CifarPytorchTrainer:
             train_loss = train_loss / len(self.train_dl.sampler)
             valid_loss = valid_loss / len(self.valid_dl.sampler)
 
-            # training/validation statistics
             logging.info('Epoch: {} \tTraining Loss: {:.6f} \tValidation Loss: {:.6f}'.format(
                 epoch, train_loss, valid_loss))
 
-            # save model if validation loss has decreased
             if valid_loss <= valid_loss_min:
                 logging.info('Validation loss decreased ({:.6f} --> {:.6f}).  Saving model ...'.format(
                     valid_loss_min,
@@ -158,22 +148,9 @@ class CifarPytorchTrainer:
                 valid_loss_min = valid_loss
 
     def infer(self, new_image: np.ndarray) -> np.ndarray:
-        # TODO makes an inference on a single image and returns a probability of each class
-        self.model.load_state_dict(torch.load('model_cifar.pt'))
-        imsize = 256
-        loader = transforms.Compose([transforms.Scale(imsize), transforms.ToTensor()])
-        #
-        # def image_loader(image_name):
-        #     """load image, returns cuda tensor"""
-        #     image = Image.open(image_name)
-        #     image = loader(image).float()
-        #     image = Variable(image, requires_grad=True)
-        #     image = image.unsqueeze(0)  # this is for VGG, may not be needed for ResNet
-        #     return image.cuda()  # assumes that you're using GPU
-
-        # image = image_loader(PATHTOIMAGE)
-        # return self.model(image)
-        pass
+        self.model.eval()
+        img = self.transform(new_image)
+        return self.model(img)
 
     def get_metrics(self) -> Dict:
         metrics_dict = {'f1': f1_score, 'recall': recall_score, 'precision': precision_score,
@@ -201,7 +178,6 @@ class CifarPytorchTrainer:
         return metrics
 
     def save(self):
-        # TODO saves a model weights and metrics (as a JSON file)
         model_path = f'{self.saving_dir}/{self.model_name}.pt'  # self.saving_dir + '/' + self.model_name + '.pt'
         torch.save(self.model.state_dict(), model_path)
         results = {

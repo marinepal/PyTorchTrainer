@@ -70,6 +70,6 @@ class Model3(nn.Module):
 MODELS = {
     'model_1': Model1(),
     'model_2': Model2(),
-    'model_3': Model3(),
+    # 'model_3': Model3(),
     'vgg_11':  vgg19(pretrained=True)
 }
