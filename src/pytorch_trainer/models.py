@@ -4,7 +4,6 @@ import torch.nn.functional as F
 from torchvision.models import vgg19
 
 
-
 class Model1(nn.Module):
     def __init__(self):
         super(Model1, self).__init__()
@@ -61,15 +60,8 @@ class Model2(nn.Module):
         return x
 
 
-
-class Model3(nn.Module):
-    def __init__(self):
-        super(Model3, self).__init__()
-
-
 MODELS = {
     'model_1': Model1(),
     'model_2': Model2(),
-    # 'model_3': Model3(),
-    'vgg_11':  vgg19(pretrained=True)
+    'vgg19': vgg19(pretrained=True)
 }

@@ -1,4 +1,3 @@
-import argparse
 import json
 import logging
 from typing import Dict
@@ -13,7 +12,7 @@ from sklearn.metrics import precision_score, accuracy_score, f1_score, balanced_
 from torch.utils.data.sampler import SubsetRandomSampler
 from torchvision import datasets
 
-from models import MODELS
+from . import models
 
 logging.basicConfig(level=logging.INFO, handlers=[logging.FileHandler("message.log", 'w')])
 
@@ -24,7 +23,9 @@ logging.basicConfig(level=logging.INFO, handlers=[logging.FileHandler("message.l
 class CifarPytorchTrainer:
     """Implement training on CIFAR dataset"""
 
-    def __init__(self, model_name: str, epochs=30, lr=0.1, saving_directory="stored_models", use_existing_model=False):
+    def __init__(self, model_name: str, epochs: int = 30, lr: float = 0.1,
+                 saving_directory: str = "src/pytorch_trainer/stored_models", use_existing_model: bool = False,
+                 output_path: str = ""):
         """
 
         Args:
@@ -46,9 +47,9 @@ class CifarPytorchTrainer:
         self.lr = lr
         self.saving_dir = saving_directory
         self.train_dl, self.valid_dl, self.test_dl = self.load_dataset()
+        self.output_path = output_path
 
-        self.model = MODELS[model_name]
-        # TODO change model_name to model_path
+        self.model = models.MODELS[model_name]
         if use_existing_model:
             self.load_existing_model(model_name=model_name)
 
@@ -180,10 +181,10 @@ class CifarPytorchTrainer:
     def save(self):
         model_path = f'{self.saving_dir}/{self.model_name}.pt'  # self.saving_dir + '/' + self.model_name + '.pt'
         torch.save(self.model.state_dict(), model_path)
-        results = {
-            self.model_name: {'model_name': self.model_name, 'state_path': model_path, 'metrics': self.get_metrics()}}
+        existing_results = self.load_dict_from_json("results.json")
+        existing_results[self.model_name] = {'model_name': self.model_name, 'state_path': model_path, 'metrics': self.get_metrics()}
         with open("results.json", "w") as outfile:
-            json.dump(results, outfile)
+            json.dump(existing_results, outfile)
 
     @staticmethod
     def load_dict_from_json(filepath):
@@ -257,27 +258,3 @@ class CifarPytorchTrainer:
             ax.set_title("{} ({})".format(self.CLASSES[preds[idx]], self.CLASSES[labels[idx]]),
                          color=("green" if preds[idx] == labels[idx].item() else "red"))
         plt.show()
-
-
-if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Training on CIFAR dataset.")
-    parser.add_argument('--model_name', '-mn', help='model you want to use', required=True)
-    parser.add_argument('--metric', '-m', help="output one metric", default='f1')
-    parser.add_argument('--output_json_path', '-o', help='output json path', default='out.json')
-    parser.add_argument('--lr', help='learning rate', default=0.1)
-    parser.add_argument('--epochs', '-e', help='number of epochs', default=30)
-    parser.add_argument('--pretrained', help="Use pretrained model", action='store_true')
-    args = parser.parse_args()
-
-    model = CifarPytorchTrainer(args.model_name, use_existing_model=args.pretrained)
-    if not args.pretrained:
-        print(
-            f'Training {args.model_name} with lr of {args.lr} and {args.epochs} epochs. Results will be saved to {args.output_json_path}')
-        model.train()
-    else:
-        print(f'Using {args.model_name} pretrained model. Results will be saved to {args.output_json_path}')
-    model.test()
-    model.visualise()
-    model.save()
-
-# python3 pytorchTrainer.py --model_name model_1
