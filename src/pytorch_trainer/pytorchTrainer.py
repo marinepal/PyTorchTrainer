@@ -17,9 +17,6 @@ from . import models
 logging.basicConfig(level=logging.INFO, handlers=[logging.FileHandler("message.log", 'w')])
 
 
-# terminal_stdout = sys.stdout
-
-
 class CifarPytorchTrainer:
     """Implement training on CIFAR dataset"""
 
@@ -64,7 +61,7 @@ class CifarPytorchTrainer:
         self.criterion = nn.CrossEntropyLoss()
         self.optimizer = optim.SGD(self.model.parameters(), lr=0.01)
 
-    def load_existing_model(self, model_name):
+    def load_existing_model(self, model_name: str):
         model_info = self.load_dict_from_json("results.json")
         model_path = model_info[model_name]['state_path']
         self.model.load_state_dict(torch.load(model_path))
@@ -182,7 +179,8 @@ class CifarPytorchTrainer:
         model_path = f'{self.saving_dir}/{self.model_name}.pt'  # self.saving_dir + '/' + self.model_name + '.pt'
         torch.save(self.model.state_dict(), model_path)
         existing_results = self.load_dict_from_json("results.json")
-        existing_results[self.model_name] = {'model_name': self.model_name, 'state_path': model_path, 'metrics': self.get_metrics()}
+        existing_results[self.model_name] = {'model_name': self.model_name, 'state_path': model_path,
+                                             'metrics': self.get_metrics()}
         with open("results.json", "w") as outfile:
             json.dump(existing_results, outfile)
 
