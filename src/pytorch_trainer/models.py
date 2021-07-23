@@ -1,7 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from torchvision.models import vgg19
+from torchvision.models import resnet50
 
 
 class Model1(nn.Module):
@@ -63,5 +63,5 @@ class Model2(nn.Module):
 MODELS = {
     'model_1': Model1(),
     'model_2': Model2(),
-    'vgg19': vgg19(pretrained=True)
+    'resnet50': resnet50(pretrained=True)
 }
