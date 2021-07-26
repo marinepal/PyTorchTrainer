@@ -214,7 +214,7 @@ class CifarPytorchTrainer:
                 class_total[label] += 1
 
         test_loss = test_loss / len(self.test_dl.dataset)
-        logging.info('Test Loss: {:.6f}\n'.format(test_loss))
+        logging.info('{} test Loss: {:.6f}\n'.format(self.model_name, test_loss))
 
         for i in range(10):
             if class_total[i] > 0:
@@ -253,7 +253,6 @@ class CifarPytorchTrainer:
         for idx in np.arange(20):
             ax = fig.add_subplot(2, 20 / 2, idx + 1, xticks=[], yticks=[])
             self.imshow(images[idx] if not self.train_on_gpu else images[idx].cpu())
-            print(f'{idx}  {preds[idx]}   {labels[idx]}')
             ax.set_title("{} ({})".format(self.CLASSES[preds[idx]], self.CLASSES[labels[idx]]),
                          color=("green" if preds[idx] == labels[idx].item() else "red"))
         plt.show()

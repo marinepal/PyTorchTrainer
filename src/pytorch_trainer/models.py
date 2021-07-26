@@ -60,8 +60,22 @@ class Model2(nn.Module):
         return x
 
 
+class Model3(nn.Module):
+    def __init__(self):
+        super(Model3, self).__init__()
+        self.pretrained = resnet50(pretrained=True)
+        for param in self.pretrained.parameters():
+            param.requires_grad = False
+        self.pretrained.fc = nn.Linear(2048, 10)
+
+    def forward(self, x):
+        x = self.pretrained(x)
+        return x
+
+
+
 MODELS = {
     'model_1': Model1(),
     'model_2': Model2(),
-    'resnet50': resnet50(pretrained=True)
+    'resnet50': Model3()
 }

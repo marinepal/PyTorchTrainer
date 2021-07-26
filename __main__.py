@@ -13,6 +13,7 @@ if __name__ == "__main__":
     args = parser.parse_args()
 
     model = CifarPytorchTrainer(args.model_name, use_existing_model=args.pretrained, lr=args.lr, epochs=args.epochs)
+    print(model.model)
     if not args.pretrained:
         print(
             f'Training {args.model_name} with lr of {args.lr} and {args.epochs} epochs. Results will be saved to {args.output_json_path}')
