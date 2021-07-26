@@ -73,7 +73,6 @@ class Model3(nn.Module):
         return x
 
 
-
 MODELS = {
     'model_1': Model1(),
     'model_2': Model2(),
