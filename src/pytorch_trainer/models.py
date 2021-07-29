@@ -4,9 +4,9 @@ import torch.nn.functional as F
 from torchvision.models import resnet50
 
 
-class Model1(nn.Module):
+class StandardModel(nn.Module):
     def __init__(self):
-        super(Model1, self).__init__()
+        super(StandardModel, self).__init__()
         # convolutional layer (sees 32x32x3 image tensor)
         self.conv1 = nn.Conv2d(3, 16, 3, padding=1)
         # convolutional layer (sees 16x16x16 tensor)
@@ -40,9 +40,9 @@ class Model1(nn.Module):
         return x
 
 
-class Model2(nn.Module):
+class SimpleModel(nn.Module):
     def __init__(self):
-        super(Model2, self).__init__()
+        super(SimpleModel, self).__init__()
         self.conv1 = nn.Conv2d(3, 6, 5)
         self.pool = nn.MaxPool2d(2, 2)
         self.conv2 = nn.Conv2d(6, 16, 5)
@@ -60,9 +60,9 @@ class Model2(nn.Module):
         return x
 
 
-class Model3(nn.Module):
+class ResNet50(nn.Module):
     def __init__(self):
-        super(Model3, self).__init__()
+        super(ResNet50, self).__init__()
         self.pretrained = resnet50(pretrained=True)
         for param in self.pretrained.parameters():
             param.requires_grad = False
@@ -71,10 +71,3 @@ class Model3(nn.Module):
     def forward(self, x):
         x = self.pretrained(x)
         return x
-
-
-MODELS = {
-    'model_1': Model1(),
-    'model_2': Model2(),
-    'resnet50': Model3()
-}

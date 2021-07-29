@@ -9,5 +9,5 @@ The following command should be run from terminal: <br>
     <code>python __main__.py --model_name <i>model_name</i></code>
 -----------------------------
 ## Models
-The first 2 models don't really have names, so we've called them "model_1" and "model_2". The third possible model to use is "resnet50".
+The first 2 models don't really have names, so we've called them "StandardModel" and "SimpleModel". The third possible model to use is "ResNet50".
 Note: resnet50 is trained for only 7 epochs, in contrast to the 30 epochs of the other 2 models.

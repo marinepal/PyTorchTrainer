@@ -1,7 +1,5 @@
 import json
 import logging
-from typing import Dict
-
 import numpy as np
 import torch
 import torch.nn as nn
@@ -11,6 +9,7 @@ from matplotlib import pyplot as plt
 from sklearn.metrics import precision_score, accuracy_score, f1_score, balanced_accuracy_score, recall_score
 from torch.utils.data.sampler import SubsetRandomSampler
 from torchvision import datasets
+from typing import Dict
 
 from . import models
 
@@ -46,7 +45,7 @@ class CifarPytorchTrainer:
         self.train_dl, self.valid_dl, self.test_dl = self.load_dataset()
         self.output_path = output_path
 
-        self.model = models.MODELS[model_name]
+        self.model = getattr(models, model_name)()
         if use_existing_model:
             self.load_existing_model(model_name=model_name)
 
